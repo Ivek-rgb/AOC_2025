@@ -1,5 +1,3 @@
-import math
-
 start = 50 
 
 def main(): 

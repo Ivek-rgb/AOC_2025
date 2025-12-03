@@ -30,45 +30,35 @@ def recursive_split(start_str):
 accelerator_map = dict() 
 
 # solved by combinatorics -- bleh 
-def recursive_comb(digits, dig_num, static_dig_num): 
+def recursive_comb(digits, i, dig_num, static_dig_num): 
     global accelerator_map
     result = None 
     
-    if len(digits) == 1: return digits[0]
+    if i == len(digits) and dig_num > 0: 
+        return - 10**20
+    elif i == len(digits): 
+        return 0
 
     number = None 
     an_number = None
     formatted_key = None
-
-    for i in range(len(digits) - 1):
-        
-        if(len(digits) - i + static_dig_num - dig_num  < static_dig_num): break
-        
-        formatted_key_non = f"{digits[i]}-{dig_num}-{digits[i+1:]}"
-        if formatted_key_non not in accelerator_map: 
-            number = digits[i] + (recursive_comb(digits[i+1:], dig_num - 1, static_dig_num) if dig_num - 1 > 0 else "")
-            accelerator_map[formatted_key_non] = number
-        else: number = accelerator_map[formatted_key_non]
-
-        formatted_key_skip = f"W-{dig_num}-{digits[i+1:]}"
-        if formatted_key_skip not in accelerator_map: 
-            an_number = recursive_comb(digits[i+1:], dig_num, static_dig_num)
-            accelerator_map[formatted_key_skip] = an_number
-        else: an_number = accelerator_map[formatted_key_skip]
-        if an_number is None or int(number) > int(an_number): 
-            larger = number
-        else: 
-            larger = an_number
-        
-        if larger != None and (result is None or int(result) < int(larger)): 
-            result = larger
+    
+    formatted_key = f"{i}-{dig_num}"
+    if formatted_key not in accelerator_map: 
+        number = int(digits[i]) * 10**(dig_num - 1) + recursive_comb(digits, i + 1,  dig_num - 1, static_dig_num)
+        accelerator_map[formatted_key] = number
+    else: number = accelerator_map[formatted_key]
+    
+    formatted_key = f"W-{i}-{dig_num}"
+    if formatted_key not in accelerator_map: 
+        an_number = recursive_comb(digits, i + 1, dig_num, static_dig_num)
+        accelerator_map[formatted_key] = an_number
+    else: an_number = accelerator_map[formatted_key]
+    
+    result = an_number
+    result = max(result, int(number))
     
     return result 
-
-def snd_main(): 
-    print(recursive_comb("987654321111111987654321111111987654321111111987654321111111", dig_num=12, static_dig_num=12)) 
-
-#snd_main() 
 
 def main():
     global accelerator_map
@@ -80,14 +70,14 @@ def main():
             # part 1 
             #result += int(recursive_split(line))
             # part 2 
-            max = None
             #print(max)
-            return_val = recursive_comb(line, dig_num=12, static_dig_num=12)
-            result += int(return_val)
+            accelerator_map = dict()            
+            return_val = recursive_comb(line, 0, dig_num=12, static_dig_num=12)
+            result += return_val
         end = time.perf_counter() 
         print(f"elapsed time: {(end - start):.6f} seconds")
         print(result)
-        #167523425665348
+        #167523425665348 correct
     pass
 
 main() 
